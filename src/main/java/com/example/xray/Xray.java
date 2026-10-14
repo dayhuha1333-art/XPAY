@@ -12,7 +12,7 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.client.event.ModelBakeEvent;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.common.event.FMLInitializationEvent;
+import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
@@ -40,16 +40,20 @@ public class Xray {
         HIDDEN.add(new ResourceLocation("minecraft:stone"));
     }
 
+    // ФИКС: preInit, а не init — ModelBakeEvent срабатывает раньше FMLInitializationEvent
     @Mod.EventHandler
-    public void init(FMLInitializationEvent e) {
+    public void preInit(FMLPreInitializationEvent e) {
         MinecraftForge.EVENT_BUS.register(this);
+        LOGGER.info("Xray: preInit, event bus registered");
     }
 
     @SideOnly(Side.CLIENT)
     @SubscribeEvent
     public void onModelBake(ModelBakeEvent event) {
+        LOGGER.info("Xray: ModelBakeEvent fired!");
         int replaced = 0;
         Set<ModelResourceLocation> keys = new HashSet<>(event.getModelRegistry().getKeys());
+        LOGGER.info("Xray: total models = {}", keys.size());
 
         for (ModelResourceLocation mrl : keys) {
             String variant = mrl.getVariant();
@@ -58,6 +62,11 @@ public class Xray {
             }
 
             ResourceLocation loc = new ResourceLocation(mrl.getNamespace(), mrl.getPath());
+
+            if (loc.toString().contains("stone")) {
+                LOGGER.info("Xray: stone-like MRL = {} | path={} | variant={}", mrl, mrl.getPath(), variant);
+            }
+
             if (!HIDDEN.contains(loc)) {
                 continue;
             }
@@ -68,6 +77,7 @@ public class Xray {
             }
 
             event.getModelRegistry().putObject(mrl, new InvisibleModel(original));
+            LOGGER.info("Xray: replaced {}", mrl);
             replaced++;
         }
 
