@@ -79,17 +79,25 @@ public class Xray {
     @SideOnly(Side.CLIENT)
     @SubscribeEvent
     public void onModelBake(ModelBakeEvent event) {
+        int total = 0;
+        int replaced = 0;
         for (ModelResourceLocation mrl : event.getModelRegistry().getKeys()) {
+            total++;
             String full = mrl.toString();
             String path = full.split("#")[0];
             ResourceLocation loc = new ResourceLocation(path);
+
+            System.out.println("BAKE: " + full + " -> " + path);
+
             if (WHITELIST.contains(loc)) continue;
 
             IBakedModel original = event.getModelRegistry().getObject(mrl);
             if (original == null) continue;
 
             event.getModelRegistry().putObject(mrl, new InvisibleModel(original));
+            replaced++;
         }
+        System.out.println("BAKE TOTAL: " + total + ", REPLACED: " + replaced);
     }
 
     @SideOnly(Side.CLIENT)
