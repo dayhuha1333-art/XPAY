@@ -98,7 +98,8 @@ public class Xray {
                 continue;
             }
 
-            ResourceLocation loc = new ResourceLocation(mrl.getResourceDomain(), mrl.getResourcePath());
+            // В 1.12.2 у ModelResourceLocation используются getNamespace()/getPath()
+            ResourceLocation loc = new ResourceLocation(mrl.getNamespace(), mrl.getPath());
 
             if (WHITELIST.contains(loc)) {
                 continue;
