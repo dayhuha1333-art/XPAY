@@ -80,7 +80,9 @@ public class Xray {
     @SubscribeEvent
     public void onModelBake(ModelBakeEvent event) {
         for (ModelResourceLocation mrl : event.getModelRegistry().getKeys()) {
-            ResourceLocation loc = mrl.resourceLocation;
+            String full = mrl.toString();
+            String path = full.split("#")[0];
+            ResourceLocation loc = new ResourceLocation(path);
             if (WHITELIST.contains(loc)) continue;
 
             IBakedModel original = event.getModelRegistry().getObject(mrl);
