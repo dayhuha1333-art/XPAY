@@ -2,13 +2,10 @@
 {
   "modid": "xray",
   "name": "Xray",
-  "description": "Makes all blocks except ores, chests and shulkers invisible.",
-  "version": "${version}",
-  "mcversion": "${mcversion}",
-  "authorList": ["You"],
-  "credits": "",
-  "logoFile": "",
-  "screenshots": [],
-  "dependencies": []
+  "description": "Makes stone invisible",
+  "version": "1.0",
+  "mcversion": "1.12.2",
+  "authorList": ["you"],
+  "clientSideOnly": true,
+  "mixins": ["mixins.xray.json"]
 }
-]
