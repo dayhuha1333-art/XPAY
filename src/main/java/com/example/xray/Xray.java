@@ -5,6 +5,7 @@ import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.renderer.block.model.IBakedModel;
 import net.minecraft.client.renderer.block.model.ItemCameraTransforms;
 import net.minecraft.client.renderer.block.model.ItemOverrideList;
+import net.minecraft.client.renderer.block.model.ModelResourceLocation;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.ResourceLocation;
@@ -78,13 +79,14 @@ public class Xray {
     @SideOnly(Side.CLIENT)
     @SubscribeEvent
     public void onModelBake(ModelBakeEvent event) {
-        for (ResourceLocation loc : event.getModelRegistry().getKeys()) {
+        for (ModelResourceLocation mrl : event.getModelRegistry().getKeys()) {
+            ResourceLocation loc = new ResourceLocation(mrl.getResourceDomain(), mrl.getResourcePath());
             if (WHITELIST.contains(loc)) continue;
 
-            IBakedModel original = event.getModelRegistry().getObject(loc);
+            IBakedModel original = event.getModelRegistry().getObject(mrl);
             if (original == null) continue;
 
-            event.getModelRegistry().putObject(loc, new InvisibleModel(original));
+            event.getModelRegistry().putObject(mrl, new InvisibleModel(original));
         }
     }
 
