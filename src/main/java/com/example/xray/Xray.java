@@ -40,20 +40,17 @@ public class Xray {
         HIDDEN.add(new ResourceLocation("minecraft:stone"));
     }
 
-    // ФИКС: preInit, а не init — ModelBakeEvent срабатывает раньше FMLInitializationEvent
     @Mod.EventHandler
     public void preInit(FMLPreInitializationEvent e) {
         MinecraftForge.EVENT_BUS.register(this);
-        LOGGER.info("Xray: preInit, event bus registered");
+        LOGGER.info("Xray: preInit complete");
     }
 
     @SideOnly(Side.CLIENT)
     @SubscribeEvent
     public void onModelBake(ModelBakeEvent event) {
-        LOGGER.info("Xray: ModelBakeEvent fired!");
         int replaced = 0;
         Set<ModelResourceLocation> keys = new HashSet<>(event.getModelRegistry().getKeys());
-        LOGGER.info("Xray: total models = {}", keys.size());
 
         for (ModelResourceLocation mrl : keys) {
             String variant = mrl.getVariant();
@@ -62,11 +59,6 @@ public class Xray {
             }
 
             ResourceLocation loc = new ResourceLocation(mrl.getNamespace(), mrl.getPath());
-
-            if (loc.toString().contains("stone")) {
-                LOGGER.info("Xray: stone-like MRL = {} | path={} | variant={}", mrl, mrl.getPath(), variant);
-            }
-
             if (!HIDDEN.contains(loc)) {
                 continue;
             }
@@ -77,7 +69,6 @@ public class Xray {
             }
 
             event.getModelRegistry().putObject(mrl, new InvisibleModel(original));
-            LOGGER.info("Xray: replaced {}", mrl);
             replaced++;
         }
 
