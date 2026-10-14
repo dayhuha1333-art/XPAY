@@ -17,6 +17,8 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import org.apache.commons.lang3.tuple.Pair;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import javax.annotation.Nullable;
 import javax.vecmath.Matrix4f;
@@ -29,9 +31,12 @@ import java.util.Set;
         acceptedMinecraftVersions = "[1.12,1.13)", clientSideOnly = true)
 public class Xray {
 
+    private static final Logger LOGGER = LogManager.getLogger("xray");
+
     private static final Set<ResourceLocation> WHITELIST = new HashSet<>();
 
     static {
+        // Руда
         WHITELIST.add(new ResourceLocation("minecraft:coal_ore"));
         WHITELIST.add(new ResourceLocation("minecraft:iron_ore"));
         WHITELIST.add(new ResourceLocation("minecraft:gold_ore"));
@@ -42,10 +47,12 @@ public class Xray {
         WHITELIST.add(new ResourceLocation("minecraft:emerald_ore"));
         WHITELIST.add(new ResourceLocation("minecraft:quartz_ore"));
 
+        // Сундуки
         WHITELIST.add(new ResourceLocation("minecraft:chest"));
         WHITELIST.add(new ResourceLocation("minecraft:trapped_chest"));
         WHITELIST.add(new ResourceLocation("minecraft:ender_chest"));
 
+        // Шалкеры
         WHITELIST.add(new ResourceLocation("minecraft:white_shulker_box"));
         WHITELIST.add(new ResourceLocation("minecraft:orange_shulker_box"));
         WHITELIST.add(new ResourceLocation("minecraft:magenta_shulker_box"));
@@ -63,6 +70,7 @@ public class Xray {
         WHITELIST.add(new ResourceLocation("minecraft:red_shulker_box"));
         WHITELIST.add(new ResourceLocation("minecraft:black_shulker_box"));
 
+        // Прочее
         WHITELIST.add(new ResourceLocation("minecraft:mob_spawner"));
         WHITELIST.add(new ResourceLocation("minecraft:end_portal"));
         WHITELIST.add(new ResourceLocation("minecraft:end_portal_frame"));
@@ -81,23 +89,31 @@ public class Xray {
     public void onModelBake(ModelBakeEvent event) {
         int total = 0;
         int replaced = 0;
+
         for (ModelResourceLocation mrl : event.getModelRegistry().getKeys()) {
             total++;
-            String full = mrl.toString();
-            String path = full.split("#")[0];
-            ResourceLocation loc = new ResourceLocation(path);
 
-            System.out.println("BAKE: " + full + " -> " + path);
+            // Не трогаем item-модели (инвентарь, рука, GUI)
+            if ("inventory".equals(mrl.getVariant())) {
+                continue;
+            }
 
-            if (WHITELIST.contains(loc)) continue;
+            ResourceLocation loc = new ResourceLocation(mrl.getResourceDomain(), mrl.getResourcePath());
+
+            if (WHITELIST.contains(loc)) {
+                continue;
+            }
 
             IBakedModel original = event.getModelRegistry().getObject(mrl);
-            if (original == null) continue;
+            if (original == null) {
+                continue;
+            }
 
             event.getModelRegistry().putObject(mrl, new InvisibleModel(original));
             replaced++;
         }
-        System.out.println("BAKE TOTAL: " + total + ", REPLACED: " + replaced);
+
+        LOGGER.info("Xray: baked {} models, replaced {} with invisible", total, replaced);
     }
 
     @SideOnly(Side.CLIENT)
