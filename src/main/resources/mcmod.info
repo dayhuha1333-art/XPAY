@@ -1,0 +1,14 @@
+[
+{
+  "modid": "xray",
+  "name": "Xray",
+  "description": "Makes all blocks except ores, chests and shulkers invisible.",
+  "version": "${version}",
+  "mcversion": "${mcversion}",
+  "authorList": ["You"],
+  "credits": "",
+  "logoFile": "",
+  "screenshots": [],
+  "dependencies": []
+}
+]
